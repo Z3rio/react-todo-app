@@ -44,11 +44,28 @@ func main() {
 
     api.POST("/addTodo", func(ctx *gin.Context) {
       var params = ctx.Request.URL.Query()
-
+  
       if params != nil && params["text"] != nil {
         var text = params["text"][0]
+        var ip = ctx.ClientIP()
 
-        db.ExecContext(ctx, "INSERT INTO `todo_items` (`text`, `date`) VALUES ('" + text + "', " + ToStringint(0) + ")")
+        db.ExecContext(ctx, "INSERT INTO `todo_items` (`text`, `date`, `ip`) VALUES ('" + text + "', CURRENT_TIMESTAMP(), '" + ip + "')")
+
+        ctx.JSON(200, gin.H{})
+      } else {
+        ctx.JSON(400, gin.H{"msg": "Invalid parameters"})
+      }
+    })
+
+    api.DELETE("/removeTodo", func(ctx *gin.Context) {
+      var params = ctx.Request.URL.Query()
+
+      if params != nil && params["id"] != nil {
+        var id = params["id"][0]
+        var ip = ctx.ClientIP()
+
+        db.ExecContext(ctx, "DELETE FROM `todo_items` WHERE `id` = " + id + " AND `ip` = '" + ip + "'")
+
         ctx.JSON(200, gin.H{})
       } else {
         ctx.JSON(400, gin.H{"msg": "Invalid parameters"})
