@@ -13,16 +13,12 @@ import (
   "github.com/gin-contrib/cors"
 )
 
-func ToStringint(x int) string { 
-  return strconv.Itoa(x)
-}
-
 func main() {
 	var (
 		id int
 		text string
 		identifier string 
-		date time.Time
+		date []uint8
 	)
 
   router := gin.Default()
@@ -51,7 +47,7 @@ func main() {
     api.GET("/getTodos", func(ctx *gin.Context) {
       var ip = ctx.ClientIP()
 
-      res, err := db.Query("SELECT * FROM `todo_items` WHERE `identifier` = '" + ip + "'")
+      res, err := db.Query("SELECT `id`, `text`, `identifier`, `date` FROM `todo_items` WHERE `identifier` = '" + ip + "'")
       defer res.Close()
 
       if err != nil {
@@ -68,7 +64,7 @@ func main() {
             log.Fatal(err)
             ctx.JSON(500, gin.H{"error": err})
           } else {
-            rows = append(rows, []string{strconv.Itoa(id), text, identifier.toString(), date.String()})
+            rows = append(rows, []string{strconv.Itoa(id), text, strconv.Itoa(int(date[1])), identifier})
           }
         }
 
