@@ -7,8 +7,10 @@ import (
   "strconv"
   "log"
   "net/http"
+  "time"
   
   "github.com/gin-gonic/gin"
+  "github.com/gin-contrib/cors"
 )
 
 func ToStringint(x int) string { 
@@ -16,6 +18,13 @@ func ToStringint(x int) string {
 }
 
 func main() {
+	var (
+		id int
+		text string
+		identifier string 
+		date time.Time
+	)
+
   router := gin.Default()
 
   db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/react_todo")
@@ -25,21 +34,46 @@ func main() {
       log.Fatal(err)
   }
 
+  router.Use(cors.New(cors.Config{
+    AllowOrigins:     []string{"http://localhost:5173"},
+    AllowMethods:     []string{"GET", "POST", "DELETE"},
+    AllowHeaders:     []string{"Origin"},
+    ExposeHeaders:    []string{"Content-Length"},
+    AllowCredentials: true,
+    AllowOriginFunc: func(origin string) bool {
+        return origin == "https://github.com"
+    },
+    MaxAge: 12 * time.Hour,
+  }))
+
   api := router.Group("/api")
   {
-    api.GET("/getTodo", func(ctx *gin.Context) {
+    api.GET("/getTodos", func(ctx *gin.Context) {
       var ip = ctx.ClientIP()
 
-      log.Print(ip)
-
-      res, err := db.Query("SELECT * FROM `todo_items` WHERE `ip` = '" + ip + "'")
+      res, err := db.Query("SELECT * FROM `todo_items` WHERE `identifier` = '" + ip + "'")
       defer res.Close()
 
       if err != nil {
         log.Fatal(err)
-      }
+        ctx.JSON(500, gin.H{"error": err})
+        return;
+      } else {
+        rows := make([][]string, 0)
 
-      ctx.JSON(200, gin.H{"response": res})
+        for res.Next() {
+          err := res.Scan(&id, &text, &identifier, &date)
+
+          if err != nil {
+            log.Fatal(err)
+            ctx.JSON(500, gin.H{"error": err})
+          } else {
+            rows = append(rows, []string{strconv.Itoa(id), text, identifier.toString(), date.String()})
+          }
+        }
+
+        ctx.JSON(200, gin.H{"todos": rows}) 
+      }
     })
 
     api.POST("/addTodo", func(ctx *gin.Context) {
@@ -49,7 +83,7 @@ func main() {
         var text = params["text"][0]
         var ip = ctx.ClientIP()
 
-        db.ExecContext(ctx, "INSERT INTO `todo_items` (`text`, `date`, `ip`) VALUES ('" + text + "', CURRENT_TIMESTAMP(), '" + ip + "')")
+        db.ExecContext(ctx, "INSERT INTO `todo_items` (`text`, `date`, `identifier`) VALUES ('" + text + "', CURRENT_TIMESTAMP(), '" + ip + "')")
 
         ctx.JSON(200, gin.H{})
       } else {
@@ -64,7 +98,7 @@ func main() {
         var id = params["id"][0]
         var ip = ctx.ClientIP()
 
-        db.ExecContext(ctx, "DELETE FROM `todo_items` WHERE `id` = " + id + " AND `ip` = '" + ip + "'")
+        db.ExecContext(ctx, "DELETE FROM `todo_items` WHERE `id` = " + id + " AND `identifier` = '" + ip + "'")
 
         ctx.JSON(200, gin.H{})
       } else {
