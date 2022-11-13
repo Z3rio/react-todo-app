@@ -6,3 +6,5 @@ Todo app written in Typescript with React as frontend and Go-lang as the backend
 - React
 - Golang
 - MongoDB
+
+(THIS PROJECT AND README IS W.I.P)
