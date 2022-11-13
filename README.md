@@ -12,7 +12,7 @@ Todo app written in Typescript with React as frontend and Go-lang as the backend
   > Golang extension
 - Vite
   > Used for building and such
-- MongoDB
+- MySQL
   > Used as our database
 
 (THIS PROJECT AND README IS W.I.P)
