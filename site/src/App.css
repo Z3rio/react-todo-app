@@ -49,12 +49,16 @@
 .todo-list {
   width: 30vw;
   flex: 1;
+
   margin: 0 auto;
+  margin-top: 12.5px;
+
   overflow-y: auto;
   overflow-x: hidden;
 
   display: flex;
   flex-direction: column;
+  row-gap: 15px;
 }
 
 .new-todo-item {
@@ -62,6 +66,52 @@
   flex-direction: row;
   align-items: center;
   column-gap: 20px;
+}
+
+.todo-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.todo-item .text {
+  flex: 1;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.todo-items .actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.todo-item .actions svg:hover {
+  color: #fff;
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+.todo-item p,
+.todo-item h1 {
+  margin: 0px;
+}
+
+.todo-item p {
+  color: #ccc;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.todo-item h1 {
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  text-align: left;
 }
 
 .MuiFormControl-root {

@@ -49,10 +49,7 @@ func main() {
 		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://github.com"
-		},
-		MaxAge: 12 * time.Hour,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	api := router.Group("/api")
@@ -64,14 +61,7 @@ func main() {
 
 			if err != nil {
 				log.Fatal(err)
-			}
-
-			defer res.Close()
-
-			if err != nil {
-				log.Fatal(err)
 				ctx.JSON(500, gin.H{"error": err})
-				return
 			} else {
 				rows := make([]map[string]string, 0)
 
@@ -82,10 +72,17 @@ func main() {
 						log.Fatal(err)
 						ctx.JSON(500, gin.H{"error": err})
 					} else {
+						var dateStr string
+
+						for i := range date {
+							log.Print(string(date[i]))
+							dateStr += string(date[i])
+						}
+
 						rows = append(rows, map[string]string{
 							"id":         strconv.Itoa(id),
 							"text":       text,
-							"date":       strconv.Itoa(int(date[1])),
+							"date":       dateStr,
 							"identifier": identifier,
 						})
 					}
